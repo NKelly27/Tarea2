@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Tarea2
 {
@@ -6,115 +6,124 @@ namespace Tarea2
     {
         static void Main(string[] args)
         {
-  
             int cantOperarios = 0, cantTecnicos = 0, cantProfesionales = 0;
             double acumOperarios = 0, acumTecnicos = 0, acumProfesionales = 0;
-
             string continuar;
 
             do
             {
+                string cedula = SolicitarTexto("Ingrese la cédula del colaborador:");
+                string nombre = SolicitarTexto("Ingrese el nombre del colaborador:");
+                int categoria = SolicitarCategoria();
+                int salarioHora = SolicitarEntero("Ingrese el salario por hora:");
+                int horas = SolicitarEntero("Ingrese la cantidad de horas trabajadas:");
 
-                Console.WriteLine("Ingrese la cédula del colaborador:");
-                string cedula = Console.ReadLine();
+                double salarioNeto = ProcesarColaborador(cedula, nombre, categoria, salarioHora, horas);
 
-                Console.WriteLine("Ingrese el nombre del colaborador:");
-                string nombre = Console.ReadLine();
-
-                int categoria;
-                do
+                // Acumuladores y contadores por categoría
+                switch (categoria)
                 {
-                    Console.WriteLine("Ingrese la categoría del colaborador (1-Operario, 2-Técnico, 3-Profesional):");
-                } while (!int.TryParse(Console.ReadLine(), out categoria) || categoria < 1 || categoria > 3);
-
-                int salarioHora;
-                Console.WriteLine("Ingrese el salario por hora:");
-                int.TryParse(Console.ReadLine(), out salarioHora);
-
-                int horas;
-                Console.WriteLine("Ingrese la cantidad de horas trabajadas:");
-                int.TryParse(Console.ReadLine(), out horas);
-
-                int salarioOrdinario = salarioHora * horas;
-                double aumento = 0;
-
-                if (categoria == 1)
-                {
-                    aumento = salarioOrdinario * 0.15;
-                }
-                else if (categoria == 2)
-                {
-                    aumento = salarioOrdinario * 0.10;
-                }
-                else if (categoria == 3)
-                {
-                    aumento = salarioOrdinario * 0.05;
+                    case 1:
+                        cantOperarios++;
+                        acumOperarios += salarioNeto;
+                        break;
+                    case 2:
+                        cantTecnicos++;
+                        acumTecnicos += salarioNeto;
+                        break;
+                    case 3:
+                        cantProfesionales++;
+                        acumProfesionales += salarioNeto;
+                        break;
                 }
 
-                double salarioBruto = salarioOrdinario + aumento;
-                double deduccion = salarioBruto * 0.0917;
-                double salarioNeto = salarioBruto - deduccion;
-
-                Console.WriteLine("\n--- Detalle del Colaborador ---");
-                Console.WriteLine("Cédula: " + cedula);
-                Console.WriteLine("Nombre: " + nombre);
-
-                if (categoria == 1)
-                {
-                    Console.WriteLine("Tipo de empleado: Operario");
-                }
-                else if (categoria == 2)
-                {
-                    Console.WriteLine("Tipo de empleado: Técnico");
-                }
-                else if (categoria == 3)
-                {
-                    Console.WriteLine("Tipo de empleado: Profesional");
-                }
-
-                Console.WriteLine("Salario por hora: ₡" + salarioHora);
-                Console.WriteLine("Cantidad de horas: " + horas);
-                Console.WriteLine("Salario ordinario: ₡" + salarioOrdinario);
-                Console.WriteLine("Aumento: ₡" + aumento);
-                Console.WriteLine("Salario bruto: ₡" + salarioBruto);
-                Console.WriteLine("Deducción CCSS (9.17%): ₡" + deduccion);
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Salario neto: ₡" + salarioNeto);
-                Console.ResetColor();
-
-                if (categoria == 1)
-                {
-                    cantOperarios++;
-                    acumOperarios += salarioNeto;
-                }
-                else if (categoria == 2)
-                {
-                    cantTecnicos++;
-                    acumTecnicos += salarioNeto;
-                }
-                else if (categoria == 3)
-                {
-                    cantProfesionales++;
-                    acumProfesionales += salarioNeto;
-                }
-
-                Console.WriteLine("\n¿Desea ingresar otro colaborador? (s/n):");
-                continuar = Console.ReadLine().ToLower();
+                continuar = SolicitarTexto("\n¿Desea ingresar otro colaborador? (s/n):").ToLower();
 
             } while (continuar == "s");
 
-            Console.WriteLine("\n===== ESTADÍSTICAS =====");
-            Console.WriteLine("Cantidad empleados tipo Operario: " + cantOperarios);
-            Console.WriteLine("Acumulado salario neto Operarios: ₡" + acumOperarios);
-            Console.WriteLine("Promedio salario neto Operarios: ₡" + (cantOperarios > 0 ? (acumOperarios / cantOperarios) : 0));
+            MostrarEstadisticas("Operario", cantOperarios, acumOperarios);
+            MostrarEstadisticas("Técnico", cantTecnicos, acumTecnicos);
+            MostrarEstadisticas("Profesional", cantProfesionales, acumProfesionales);
+        }
 
-            Console.WriteLine("Cantidad empleados tipo Técnico: " + cantTecnicos);
-            Console.WriteLine("Acumulado salario neto Técnicos: ₡" + acumTecnicos);
-            Console.WriteLine("Promedio salario neto Técnicos: ₡" + (cantTecnicos > 0 ? (acumTecnicos / cantTecnicos) : 0));
+        static string SolicitarTexto(string mensaje)
+        {
+            Console.WriteLine(mensaje);
+            return Console.ReadLine();
+        }
 
-            Console.WriteLine("Cantidad empleados tipo Profesional: " + cantProfesionales);
-            Console.WriteLine("Acumulado salario neto Profesionales: ₡" + acumProfesionales);
-            Console.WriteLine("Promedio salario neto Profesionales: ₡" + (cantProfesionales > 0 ? (acumProfesionales / cantProfesionales) : 0));
+        static int SolicitarEntero(string mensaje)
+        {
+            int valor;
+            Console.WriteLine(mensaje);
+            while (!int.TryParse(Console.ReadLine(), out valor))
+            {
+                Console.WriteLine("Valor inválido. Intente de nuevo:");
+            }
+            return valor;
+        }
+
+        static int SolicitarCategoria()
+        {
+            int categoria;
+            do
+            {
+                Console.WriteLine("Ingrese la categoría del colaborador (1-Operario, 2-Técnico, 3-Profesional):");
+            } while (!int.TryParse(Console.ReadLine(), out categoria) || categoria < 1 || categoria > 3);
+            return categoria;
+        }
+
+        static double ProcesarColaborador(string cedula, string nombre, int categoria, int salarioHora, int horas)
+        {
+            int salarioOrdinario = salarioHora * horas;
+            double aumento = CalcularAumento(categoria, salarioOrdinario);
+            double salarioBruto = salarioOrdinario + aumento;
+            double deduccion = salarioBruto * 0.0917;
+            double salarioNeto = salarioBruto - deduccion;
+
+            MostrarDetalle(cedula, nombre, categoria, salarioHora, horas, salarioOrdinario, aumento, salarioBruto, deduccion, salarioNeto);
+
+            return salarioNeto;
+        }
+
+        static double CalcularAumento(int categoria, int salarioOrdinario)
+        {
+            switch (categoria)
+            {
+                case 1: return salarioOrdinario * 0.15;
+                case 2: return salarioOrdinario * 0.10;
+                case 3: return salarioOrdinario * 0.05;
+                default: return 0;
+            }
+        }
+
+        static void MostrarDetalle(string cedula, string nombre, int categoria, int salarioHora, int horas, int salarioOrdinario, double aumento, double salarioBruto, double deduccion, double salarioNeto)
+        {
+            Console.WriteLine("\n--- Detalle del Colaborador ---");
+            Console.WriteLine("Cédula: " + cedula);
+            Console.WriteLine("Nombre: " + nombre);
+            Console.WriteLine("Tipo de empleado: " + CategoriaTexto(categoria));
+            Console.WriteLine("Salario por hora: ₡" + salarioHora);
+            Console.WriteLine("Cantidad de horas: " + horas);
+            Console.WriteLine("Salario ordinario: ₡" + salarioOrdinario);
+            Console.WriteLine("Aumento: ₡" + aumento);
+            Console.WriteLine("Salario bruto: ₡" + salarioBruto);
+            Console.WriteLine("Deducción CCSS (9.17%): ₡" + deduccion);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Salario neto: ₡" + salarioNeto);
+            Console.ResetColor();
+        }
+
+        static string CategoriaTexto(int categoria)
+        {
+            return categoria == 1 ? "Operario" : categoria == 2 ? "Técnico" : "Profesional";
+        }
+
+        static void MostrarEstadisticas(string tipo, int cantidad, double acumulado)
+        {
+            Console.WriteLine($"\nCantidad empleados tipo {tipo}: {cantidad}");
+            Console.WriteLine($"Acumulado salario neto {tipo}s: ₡{acumulado}");
+            Console.WriteLine($"Promedio salario neto {tipo}s: ₡{(cantidad > 0 ? acumulado / cantidad : 0)}");
         }
     }
 }
